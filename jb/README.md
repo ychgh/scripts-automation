@@ -8,5 +8,5 @@ Automate Jsonnet dependency setup with `jb`.
 
 ## Usage
 ```bash
-./bootstrap-jsonnet.sh github.com/jsonnet-libs/k8s-libsonnet@main
+./bootstrap-jsonnet.sh github.com/jsonnet-libs/k8s-libsonnet/1.31
 ```
