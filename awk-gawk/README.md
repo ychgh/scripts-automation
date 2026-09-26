@@ -8,5 +8,5 @@ Summarize the total size used by top-level directories from `du` output.
 
 ## Usage
 ```bash
-du -sk * | awk -f ./summarize-disk.awk
+du -sk --max-depth=1 . | awk -f ./summarize-disk.awk
 ```
