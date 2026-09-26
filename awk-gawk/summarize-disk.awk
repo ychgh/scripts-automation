@@ -1,13 +1,30 @@
 {
   size = $1
   $1 = ""
-  sub(/^ +/, "", $0)
-  if ($0 == "." || $0 == "./") {
+  path = $0
+  sub(/^ +/, "", path)
+  gsub(/\/+$/, "", path)
+  if (path == "." || path == "") {
     next
   }
-  total += size
-  printf "%s\t%s KB\n", $0, size
+  sub(/^\.\//, "", path)
+
+  split(path, parts, "/")
+  top = parts[1]
+  if (!(top in seen)) {
+    seen[top] = 1
+    order[++count] = top
+  }
+
+  totals[top] += size
 }
 END {
-  printf "TOTAL\t%d KB\n", total
+  grand_total = 0
+  for (i = 1; i <= count; i++) {
+    name = order[i]
+    value = totals[name]
+    grand_total += value
+    printf "%s\t%s KB\n", name, value
+  }
+  printf "TOTAL\t%d KB\n", grand_total
 }
