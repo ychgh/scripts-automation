@@ -42,7 +42,10 @@ def main() -> int:
     dst = dst_root / stamp
     dst.mkdir(parents=True, exist_ok=True)
     for file in src.rglob("*.report"):
-        move_without_overwrite(file, dst / file.name)
+        relative_path = file.relative_to(src)
+        destination = dst / relative_path
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        move_without_overwrite(file, destination)
 
     print(f"Archived reports to {dst}")
     return 0
