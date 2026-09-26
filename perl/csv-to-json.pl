@@ -20,20 +20,19 @@ if ($has_text_csv) {
     push @rows, { name => ($name // ''), value => ($value // '') };
   }
 } else {
-  my $record = '';
   while (my $line = <$fh>) {
-    $record .= $line;
-    my $candidate = $record;
-    $candidate =~ s/\r?\n\z//;
-    my @row = parse_line(',', 0, $candidate);
+    chomp $line;
+    next if $line =~ /^\s*$/;
+    my $quote_count = () = $line =~ /"/g;
+    if ($quote_count % 2 != 0) {
+      die "Quoted multiline CSV fields require Text::CSV in $input\n";
+    }
+    my @row = parse_line(',', 0, $line);
     next if !@row;
-    $record = '';
-    next if join('', @row) =~ /^\s*$/;
     die "Expected exactly 2 columns in $input\n" if @row != 2;
     my ($name, $value) = @row;
     push @rows, { name => ($name // ''), value => ($value // '') };
   }
-  die "Unterminated CSV record in $input\n" if $record ne '';
 }
 
 print JSON::PP->new->utf8->pretty->encode(\@rows);
