@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from pathlib import Path
+import errno
 import os
 import shutil
 import sys
@@ -16,10 +17,19 @@ def unique_destination(path: Path, attempt: int = 0) -> Path:
 
 
 def move_without_overwrite(source: Path, destination: Path) -> Path:
+    same_filesystem = source.stat().st_dev == destination.parent.stat().st_dev
     attempt = 0
     while True:
         candidate = unique_destination(destination, attempt)
         attempt += 1
+        if candidate.exists():
+            continue
+
+        if same_filesystem:
+            source.rename(candidate)
+            return candidate
+
+        before = source.stat()
         try:
             fd = os.open(candidate, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
         except FileExistsError:
@@ -28,10 +38,16 @@ def move_without_overwrite(source: Path, destination: Path) -> Path:
         try:
             with source.open("rb") as src_stream, os.fdopen(fd, "wb") as dst_stream:
                 shutil.copyfileobj(src_stream, dst_stream)
+            after = source.stat()
+            if before.st_size != after.st_size or before.st_mtime_ns != after.st_mtime_ns:
+                candidate.unlink(missing_ok=True)
+                raise RuntimeError(f"Source changed while archiving: {source}")
             source.unlink()
             return candidate
-        except Exception:
+        except OSError as exc:
             candidate.unlink(missing_ok=True)
+            if exc.errno == errno.ENOENT:
+                raise RuntimeError(f"Source disappeared while archiving: {source}") from exc
             raise
 
 
