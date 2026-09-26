@@ -72,6 +72,13 @@ def main() -> int:
     else:
         print(f"Destination must not be inside source: {dst}", file=sys.stderr)
         return 1
+    try:
+        src_resolved.relative_to(dst_resolved)
+    except ValueError:
+        pass
+    else:
+        print(f"Source must not be inside destination: {src}", file=sys.stderr)
+        return 1
 
     dst.mkdir(parents=True, exist_ok=True)
     for file in src.rglob("*.report"):
