@@ -59,7 +59,10 @@ def main() -> int:
     src = Path(sys.argv[1] if len(sys.argv) > 1 else "./reports")
     dst_root = Path(sys.argv[2] if len(sys.argv) > 2 else "./archive")
     src_resolved = src.resolve()
-    dst_root_resolved = dst_root.resolve()
+    if dst_root.exists():
+        dst_root_resolved = dst_root.resolve()
+    else:
+        dst_root_resolved = dst_root.parent.resolve() / dst_root.name
     try:
         dst_root_resolved.relative_to(src_resolved)
     except ValueError:
