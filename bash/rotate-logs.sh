@@ -37,6 +37,5 @@ while IFS= read -r -d '' file; do
     )
   else
     echo "Skipping $file because $archive is locked by another process" >&2
-    rm -f "$temp_archive"
   fi
 done
