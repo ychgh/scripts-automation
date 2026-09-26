@@ -10,7 +10,7 @@ import sys
 def unique_destination(path: Path) -> Path:
     if not path.exists():
         return path
-    stamp = datetime.now().strftime("%H%M%S")
+    stamp = datetime.now().strftime("%H%M%S%f")
     return path.with_name(f"{path.stem}-{stamp}{path.suffix}")
 
 

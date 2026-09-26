@@ -8,5 +8,5 @@ Print matching error lines from one or more log files.
 
 ## Usage
 ```bash
-./monitor-errors.sh "ERROR|FATAL" /var/log/myapp/*.log
+./monitor-errors.sh -p "ERROR|FATAL" /var/log/myapp/*.log
 ```

@@ -2,13 +2,16 @@
 set -euo pipefail
 
 pattern="ERROR|FATAL"
-if [ "$#" -ge 2 ]; then
-  pattern="$1"
-  shift
-fi
+while getopts ":p:" opt; do
+  case "$opt" in
+    p) pattern="$OPTARG" ;;
+    *) echo "Usage: $0 [-p pattern] <file...>" >&2; exit 1 ;;
+  esac
+done
+shift $((OPTIND - 1))
 
 if [ "$#" -eq 0 ]; then
-  echo "Usage: $0 [pattern] <file...>" >&2
+  echo "Usage: $0 [-p pattern] <file...>" >&2
   exit 1
 fi
 
