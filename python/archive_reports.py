@@ -59,20 +59,20 @@ def main() -> int:
     src = Path(sys.argv[1] if len(sys.argv) > 1 else "./reports")
     dst_root = Path(sys.argv[2] if len(sys.argv) > 2 else "./archive")
     src_resolved = src.resolve()
-    if dst_root.exists():
-        dst_root_resolved = dst_root.resolve()
+    stamp = datetime.now().strftime("%Y-%m-%d")
+    dst = dst_root / stamp
+    if dst.exists():
+        dst_resolved = dst.resolve()
     else:
-        dst_root_resolved = dst_root.parent.resolve() / dst_root.name
+        dst_resolved = dst.parent.resolve() / dst.name
     try:
-        dst_root_resolved.relative_to(src_resolved)
+        dst_resolved.relative_to(src_resolved)
     except ValueError:
         pass
     else:
-        print(f"Destination must not be inside source: {dst_root}", file=sys.stderr)
+        print(f"Destination must not be inside source: {dst}", file=sys.stderr)
         return 1
 
-    stamp = datetime.now().strftime("%Y-%m-%d")
-    dst = dst_root / stamp
     dst.mkdir(parents=True, exist_ok=True)
     for file in src.rglob("*.report"):
         relative_path = file.relative_to(src)

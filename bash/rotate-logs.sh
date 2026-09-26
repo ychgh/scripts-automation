@@ -32,7 +32,10 @@ while IFS= read -r -d '' file; do
         echo "Skipping $file because source changed during compression" >&2
         exit 0
       fi
-      mv "$temp_archive" "$archive"
+      if ! mv -n "$temp_archive" "$archive"; then
+        echo "Skipping $file because $archive appeared during processing" >&2
+        exit 0
+      fi
       rm -f "$file"
     )
   else
