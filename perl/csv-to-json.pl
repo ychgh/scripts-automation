@@ -19,6 +19,9 @@ if ($has_text_csv) {
     my ($name, $value) = @$row;
     push @rows, { name => ($name // ''), value => ($value // '') };
   }
+  if (!$csv->eof()) {
+    die "CSV parse error in $input: " . $csv->error_diag() . "\n";
+  }
 } else {
   while (my $line = <$fh>) {
     chomp $line;

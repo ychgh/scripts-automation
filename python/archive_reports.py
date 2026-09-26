@@ -41,7 +41,7 @@ def main() -> int:
     stamp = datetime.now().strftime("%Y-%m-%d")
     dst = dst_root / stamp
     dst.mkdir(parents=True, exist_ok=True)
-    for file in src.glob("*.report"):
+    for file in src.rglob("*.report"):
         move_without_overwrite(file, dst / file.name)
 
     print(f"Archived reports to {dst}")
