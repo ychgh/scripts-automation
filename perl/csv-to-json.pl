@@ -13,6 +13,7 @@ while (my $line = <$fh>) {
   next if $line =~ /^\s*$/;
   my @row = parse_line(',', 0, $line);
   next if !@row;
+  die "Expected exactly 2 columns at line $. in $input\n" if @row != 2;
   my ($name, $value) = @row;
   push @rows, { name => ($name // ''), value => ($value // '') };
 }
