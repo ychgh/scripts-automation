@@ -34,6 +34,7 @@ def move_without_overwrite(source: Path, destination: Path) -> Path:
                 raise RuntimeError(f"Source disappeared while archiving: {source}") from exc
 
         before = source.stat()
+        fd: int | None = None
         try:
             fd = os.open(candidate, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
         except FileExistsError:
@@ -41,6 +42,7 @@ def move_without_overwrite(source: Path, destination: Path) -> Path:
 
         try:
             with source.open("rb") as src_stream, os.fdopen(fd, "wb") as dst_stream:
+                fd = None
                 shutil.copyfileobj(src_stream, dst_stream)
             after = source.stat()
             if before.st_size != after.st_size or before.st_mtime_ns != after.st_mtime_ns:
@@ -49,6 +51,8 @@ def move_without_overwrite(source: Path, destination: Path) -> Path:
             source.unlink()
             return candidate
         except OSError as exc:
+            if fd is not None:
+                os.close(fd)
             candidate.unlink(missing_ok=True)
             if exc.errno == errno.ENOENT:
                 raise RuntimeError(f"Source disappeared while archiving: {source}") from exc
