@@ -22,12 +22,16 @@ def move_without_overwrite(source: Path, destination: Path) -> Path:
     while True:
         candidate = unique_destination(destination, attempt)
         attempt += 1
-        if candidate.exists():
-            continue
 
         if same_filesystem:
-            source.rename(candidate)
-            return candidate
+            try:
+                os.link(source, candidate)
+                source.unlink()
+                return candidate
+            except FileExistsError:
+                continue
+            except FileNotFoundError as exc:
+                raise RuntimeError(f"Source disappeared while archiving: {source}") from exc
 
         before = source.stat()
         try:
@@ -54,6 +58,16 @@ def move_without_overwrite(source: Path, destination: Path) -> Path:
 def main() -> int:
     src = Path(sys.argv[1] if len(sys.argv) > 1 else "./reports")
     dst_root = Path(sys.argv[2] if len(sys.argv) > 2 else "./archive")
+    src_resolved = src.resolve()
+    dst_root_resolved = dst_root.resolve()
+    try:
+        dst_root_resolved.relative_to(src_resolved)
+    except ValueError:
+        pass
+    else:
+        print(f"Destination must not be inside source: {dst_root}", file=sys.stderr)
+        return 1
+
     stamp = datetime.now().strftime("%Y-%m-%d")
     dst = dst_root / stamp
     dst.mkdir(parents=True, exist_ok=True)

@@ -16,7 +16,7 @@ if [ "$#" -eq 0 ]; then
 fi
 
 status=0
-grep -En "$pattern" "$@" || status=$?
+grep -En -e "$pattern" -- "$@" || status=$?
 if [ "$status" -gt 1 ]; then
   exit "$status"
 fi

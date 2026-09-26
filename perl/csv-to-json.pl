@@ -14,7 +14,7 @@ if ($has_text_csv) {
   my $csv = Text::CSV->new({ binary => 1 })
     or die "Failed to initialize Text::CSV\n";
   while (my $row = $csv->getline($fh)) {
-    next if !@$row || join('', @$row) =~ /^\s*$/;
+    next if !@$row;
     die "Expected exactly 2 columns in $input\n" if @$row != 2;
     my ($name, $value) = @$row;
     push @rows, { name => ($name // ''), value => ($value // '') };
