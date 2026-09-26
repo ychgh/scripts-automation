@@ -11,6 +11,8 @@ while IFS= read -r -d '' file; do
     echo "Skipping $file because $archive already exists" >&2
     continue
   fi
-  gzip -c "$file" > "$archive"
+  temp_archive="${archive}.tmp.$$"
+  gzip -c "$file" > "$temp_archive"
+  mv -f "$temp_archive" "$archive"
   rm -f "$file"
 done

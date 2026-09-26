@@ -24,7 +24,7 @@ END {
     name = order[i]
     value = totals[name]
     grand_total += value
-    printf "%s\t%s KB\n", name, value
+    printf "%s\t%d KB\n", name, value
   }
   printf "TOTAL\t%d KB\n", grand_total
 }
