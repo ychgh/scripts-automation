@@ -7,6 +7,13 @@ import shutil
 import sys
 
 
+def unique_destination(path: Path) -> Path:
+    if not path.exists():
+        return path
+    stamp = datetime.now().strftime("%H%M%S")
+    return path.with_name(f"{path.stem}-{stamp}{path.suffix}")
+
+
 def main() -> int:
     src = Path(sys.argv[1] if len(sys.argv) > 1 else "./reports")
     dst_root = Path(sys.argv[2] if len(sys.argv) > 2 else "./archive")
@@ -15,7 +22,8 @@ def main() -> int:
     dst.mkdir(parents=True, exist_ok=True)
 
     for file in src.glob("*.report"):
-        shutil.move(str(file), str(dst / file.name))
+        destination = unique_destination(dst / file.name)
+        shutil.move(str(file), str(destination))
 
     print(f"Archived reports to {dst}")
     return 0
